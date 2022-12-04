@@ -10,9 +10,5 @@ defmodule RockeliveryWeb.UsersView do
     }
   end
 
-  def render("created.json", %{user: []}) do
-    %{
-      message: "Nada Gravado!!!!!!!!!!"
-    }
-  end
+  def render("show.json", %{user: %User{} = user}), do: %{user: user}
 end
