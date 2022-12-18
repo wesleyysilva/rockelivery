@@ -27,8 +27,6 @@ defmodule RockeliveryWeb.ErrorView do
   end
 
   defp translate_errors(changeset) do
-    IO.inspect(changeset, label: "Mostrando Erro")
-
     traverse_errors(changeset, fn {msg, opts} ->
       Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
         opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
