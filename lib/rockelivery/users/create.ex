@@ -7,7 +7,7 @@ defmodule Rockelivery.Users.Create do
 
     with {:ok, %User{}} <- User.build(changeset),
          {:ok, _cep_info} <- Client.get_cep_info(cep),
-         {:ok, %User{}} = user <- Repo.insert!(changeset) do
+         {:ok, %User{}} = user <- Repo.insert(changeset) do
       user
     else
       {:error, %Error{}} = error -> error
