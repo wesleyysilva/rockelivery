@@ -54,6 +54,58 @@ defmodule ViaCep.ClientTest do
       assert response == expected_response
     end
 
+    test "when the cep is invalid, returns an error", %{bypass: bypass} do
+      cep = "1123"
+
+      url = endpoint_url(bypass.port)
+
+      Bypass.expect(bypass, "GET", "#{cep}/json/", fn conn ->
+        Plug.Conn.resp(conn, 400, "")
+      end)
+
+      response = Client.get_cep_info(url, cep)
+
+      expected_response =
+        {:error, %Rockelivery.Error{result: "Invalid CEP!", status: :bad_request}}
+
+      assert response == expected_response
+    end
+
+    test "when the cep was not found, returns an error", %{bypass: bypass} do
+      cep = "00000000"
+
+      body = ~s({"erro": true})
+      url = endpoint_url(bypass.port)
+
+      Bypass.expect(bypass, "GET", "#{cep}/json/", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, body)
+      end)
+
+      response = Client.get_cep_info(url, cep)
+
+      expected_response =
+        {:error, %Rockelivery.Error{result: "CEP not found!", status: :not_found}}
+
+      assert response == expected_response
+    end
+
+    test "when there is a generic error, returns an error", %{bypass: bypass} do
+      cep = "00000000"
+
+      url = endpoint_url(bypass.port)
+
+      Bypass.down(bypass)
+
+      response = Client.get_cep_info(url, cep)
+
+      expected_response =
+        {:error, %Rockelivery.Error{result: :econnrefused, status: :bad_request}}
+
+      assert response == expected_response
+    end
+
     defp endpoint_url(port), do: "http://localhost:#{port}/"
   end
 end
