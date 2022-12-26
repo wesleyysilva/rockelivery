@@ -7,9 +7,6 @@ defmodule RockeliveryWeb.OrdersController do
   action_fallback FallbackController
 
   def create(conn, params) do
-    #        IO.inspect(items, label: "Items...........................")
-    IO.inspect(params, label: "Params=========================")
-
     with {:ok, %Order{} = order} <- Rockelivery.create_order(params) do
       conn
       |> put_status(:created)
